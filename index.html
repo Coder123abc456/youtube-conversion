@@ -1,0 +1,98 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import { Download } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+
+export default function YouTubeConverter() {
+  const [youtubeLink, setYoutubeLink] = useState('');
+  const [format, setFormat] = useState('mp4');
+  const [isConverting, setIsConverting] = useState(false);
+  const [isDownloadReady, setIsDownloadReady] = useState(false);
+  const [downloadLink, setDownloadLink] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setIsDownloadReady(false);
+    setDownloadLink('');
+    setError('');
+  }, [youtubeLink, format]);
+
+  const handleConvert = () => {
+    const youtubeRegex = /^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
+    if (!youtubeRegex.test(youtubeLink.trim())) {
+      setError('Invalid YouTube link');
+      return;
+    }
+
+    setIsConverting(true);
+    setError('');
+    setTimeout(() => {
+      setIsConverting(false);
+      setIsDownloadReady(true);
+      setDownloadLink('#');
+    }, 2000);
+  };
+
+  const handleDownload = () => {
+    if (isDownloadReady) {
+      alert('Download functionality is not available on GitHub Pages. This is a demo only.');
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto mt-10 shadow-md">
+      <CardHeader>
+        <CardTitle>YouTube Video Converter</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <Input
+            type="text"
+            aria-label="YouTube link"
+            placeholder="Paste YouTube link here"
+            value={youtubeLink}
+            onChange={(e) => setYoutubeLink(e.target.value)}
+          />
+          {error && <p className="text-red-500">{error}</p>}
+          <Select value={format} onValueChange={setFormat}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select format" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="mp3">MP3 (Audio)</SelectItem>
+              <SelectItem value="mp4">MP4 (Video)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={handleConvert}
+            disabled={isConverting || !youtubeLink}
+            aria-label="Convert"
+          >
+            {isConverting ? 'Converting...' : 'Convert'}
+          </Button>
+          {isConverting && (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+            </div>
+          )}
+          {isDownloadReady && (
+            <Button onClick={handleDownload} aria-label={`Download as ${format.toUpperCase()}`}>
+              <Download className="mr-2 h-4 w-4" /> Download {format.toUpperCase()}
+            </Button>
+          )}
+          <div className="text-xs text-gray-500 pt-2">
+            <em>This demo cannot convert or download YouTube videos due to GitHub Pages limitations.</em>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
